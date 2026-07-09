@@ -41,7 +41,7 @@ def load_excel(file_path: str, header: int = 1) -> pd.DataFrame:
 )
 
     # Clean company IDs
-    from normaliser import normalize_ticker
+    from src.etl.normaliser import normalize_ticker
 
     if "id" in df.columns:
      df["id"] = df["id"].apply(normalize_ticker)
