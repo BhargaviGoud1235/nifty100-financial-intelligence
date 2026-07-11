@@ -16,37 +16,52 @@ CREATE TABLE IF NOT EXISTS companies (
 );
 
 CREATE TABLE IF NOT EXISTS profitandloss (
+    id INTEGER PRIMARY KEY,
     company_id TEXT,
     year TEXT,
     sales REAL,
+    expenses REAL,
     operating_profit REAL,
+    opm_percentage REAL,
+    other_income REAL,
+    interest REAL,
+    depreciation REAL,
+    profit_before_tax REAL,
+    tax_percentage REAL,
     net_profit REAL,
     eps REAL,
-    PRIMARY KEY(company_id, year),
+    dividend_payout REAL,
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE IF NOT EXISTS balancesheet (
+    id INTEGER PRIMARY KEY,
     company_id TEXT,
     year TEXT,
     equity_capital REAL,
     reserves REAL,
     borrowings REAL,
+    other_liabilities REAL,
+    total_liabilities REAL,
+    fixed_assets REAL,
+    cwip REAL,
+    investments REAL,
+    other_asset REAL,
     total_assets REAL,
-    PRIMARY KEY(company_id, year),
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE IF NOT EXISTS cashflow (
+    id INTEGER PRIMARY KEY,
     company_id TEXT,
     year TEXT,
-    operating_cash_flow REAL,
-    investing_cash_flow REAL,
-    financing_cash_flow REAL,
+    operating_activity REAL,
+    investing_activity REAL,
+    financing_activity REAL,
     net_cash_flow REAL,
-    PRIMARY KEY(company_id, year),
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
+
 
 CREATE TABLE IF NOT EXISTS stock_prices (
     company_id TEXT,
@@ -66,25 +81,30 @@ CREATE TABLE IF NOT EXISTS sectors (
 );
 
 CREATE TABLE IF NOT EXISTS analysis (
-    company_id TEXT PRIMARY KEY,
-    analysis TEXT,
+    id INTEGER PRIMARY KEY,
+    company_id TEXT,
+    compounded_sales_growth REAL,
+    compounded_profit_growth REAL,
+    stock_price_cagr REAL,
+    roe REAL,
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE IF NOT EXISTS documents (
-    company_id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
+    company_id TEXT,
+    year TEXT,
     annual_report TEXT,
-    investor_presentation TEXT,
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
 
 CREATE TABLE IF NOT EXISTS prosandcons (
-    company_id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
+    company_id TEXT,
     pros TEXT,
     cons TEXT,
     FOREIGN KEY(company_id) REFERENCES companies(id)
 );
-
 CREATE TABLE IF NOT EXISTS financial_ratios (
     company_id TEXT,
     year TEXT,
