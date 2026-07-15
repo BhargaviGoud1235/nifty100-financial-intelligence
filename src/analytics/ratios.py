@@ -1,66 +1,80 @@
-"""
-Sprint 2 - Day 08
-Profitability Ratio Engine
-"""
-
-def net_profit_margin(net_profit, sales):
-    """Net Profit Margin (%)"""
-    if sales == 0:
-        return None
-    return round((net_profit / sales) * 100, 2)
-
-
-def operating_profit_margin(operating_profit, sales):
-    """Operating Profit Margin (%)"""
-    if sales == 0:
-        return None
-    return round((operating_profit / sales) * 100, 2)
-
-
-def check_opm(computed_opm, source_opm):
-    """Cross-check OPM"""
-    if computed_opm is None or source_opm is None:
-        return False
-
-    return abs(computed_opm - source_opm) > 1
-
-
-def return_on_equity(net_profit, equity_capital, reserves):
-    """ROE (%)"""
-    equity = equity_capital + reserves
-
-    if equity <= 0:
-        return None
-
-    return round((net_profit / equity) * 100, 2)
-
-
-def return_on_capital_employed(
-    operating_profit,
-    interest,
-    equity_capital,
-    reserves,
-    borrowings
-):
+def debt_to_equity(borrowings, equity, reserves):
     """
-    ROCE (%)
-    EBIT = Operating Profit + Interest
+    Debt-to-Equity Ratio
     """
 
-    capital = equity_capital + reserves + borrowings
+    capital = equity + reserves
+
+    if borrowings == 0:
+        return 0
 
     if capital <= 0:
         return None
 
-    ebit = operating_profit + interest
-
-    return round((ebit / capital) * 100, 2)
+    return round(borrowings / capital, 2)
 
 
-def return_on_assets(net_profit, total_assets):
-    """ROA (%)"""
+def high_leverage_flag(de_ratio, sector):
+    """
+    High leverage warning
+    """
+
+    if de_ratio is None:
+        return False
+
+    if sector == "Financials":
+        return False
+
+    return de_ratio > 5
+
+
+def interest_coverage_ratio(operating_profit, other_income, interest):
+    """
+    Interest Coverage Ratio
+    """
+
+    if interest == 0:
+        return None
+
+    return round((operating_profit + other_income) / interest, 2)
+
+
+def icr_label(icr):
+    """
+    Display label
+    """
+
+    if icr is None:
+        return "Debt Free"
+
+    return ""
+
+
+def icr_warning(icr):
+    """
+    Warning if company cannot cover interest
+    """
+
+    if icr is None:
+        return False
+
+    return icr < 1.5
+
+
+def net_debt(borrowings, investments):
+    """
+    Net Debt
+    """
+
+    return borrowings - investments
+
+
+def asset_turnover(sales, total_assets):
+    """
+    Asset Turnover
+    """
 
     if total_assets == 0:
         return None
 
-    return round((net_profit / total_assets) * 100, 2)
+    return round(sales / total_assets, 2)
