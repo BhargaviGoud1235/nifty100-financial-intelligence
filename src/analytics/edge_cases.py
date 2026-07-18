@@ -1,90 +1,63 @@
 """
 Sprint 2 - Day 13
-ROE / ROCE Edge Case Logger
+Ratio Edge Case Detection
 """
 
 import sqlite3
-from pathlib import Path
 
 DATABASE = "db/nifty100.db"
-LOG_FILE = "output/ratio_edge_cases.log"
 
 
-def log_edge_cases():
-
-    Path("output").mkdir(exist_ok=True)
+def check_ratio_edge_cases():
 
     conn = sqlite3.connect(DATABASE)
 
-    companies = conn.execute("""
-        SELECT
-            id,
-            company_name,
-            roce_percentage,
-            roe_percentage
-        FROM companies
-    """).fetchall()
+    query = """
+    SELECT
+        f.company_id,
+        f.year,
+        f.roce,
+        c.roce_percentage,
+        f.roe,
+        c.roe_percentage
+    FROM financial_ratios f
+    JOIN companies c
+        ON f.company_id = c.id
+    """
 
-    ratios = conn.execute("""
-        SELECT
-            company_id,
-            return_on_capital_employed_pct,
-            return_on_equity_pct
-        FROM financial_ratios
-    """).fetchall()
+    rows = conn.execute(query).fetchall()
 
-    ratio_dict = {}
+    with open("output/ratio_edge_cases.log", "w") as file:
 
-    for row in ratios:
-        ratio_dict[row[0]] = row
+        for row in rows:
 
-    with open(LOG_FILE, "w") as log:
+            company = row[0]
+            year = row[1]
 
-        for company in companies:
+            calc_roce = row[2]
+            source_roce = row[3]
 
-            company_id = company[0]
-            company_name = company[1]
-
-            source_roce = company[2]
-            source_roe = company[3]
-
-            if company_id not in ratio_dict:
-                continue
-
-            calc_roce = ratio_dict[company_id][1]
-            calc_roe = ratio_dict[company_id][2]
+            calc_roe = row[4]
+            source_roe = row[5]
 
             if calc_roce is not None and source_roce is not None:
 
-                diff = abs(calc_roce - source_roce)
+                if abs(calc_roce - source_roce) > 5:
 
-                if diff > 5:
-
-                    log.write(f"Company : {company_name}\n")
-                    log.write("Metric : ROCE\n")
-                    log.write(f"Source : {source_roce}\n")
-                    log.write(f"Computed : {calc_roce}\n")
-                    log.write(f"Difference : {round(diff,2)}\n")
-                    log.write("Category : Formula Difference\n\n")
+                    file.write(
+                        f"{company} {year} : ROCE difference = "
+                        f"{round(calc_roce-source_roce,2)}\n"
+                    )
 
             if calc_roe is not None and source_roe is not None:
 
-                diff = abs(calc_roe - source_roe)
+                if abs(calc_roe - source_roe) > 5:
 
-                if diff > 5:
-
-                    log.write(f"Company : {company_name}\n")
-                    log.write("Metric : ROE\n")
-                    log.write(f"Source : {source_roe}\n")
-                    log.write(f"Computed : {calc_roe}\n")
-                    log.write(f"Difference : {round(diff,2)}\n")
-                    log.write("Category : Data Source Issue\n\n")
+                    file.write(
+                        f"{company} {year} : ROE difference = "
+                        f"{round(calc_roe-source_roe,2)}\n"
+                    )
 
     conn.close()
 
-    print("Edge case log generated.")
-    print("Saved -> output/ratio_edge_cases.log")
-
-
-if __name__ == "__main__":
-    log_edge_cases()
+    print("ratio_edge_cases.log generated.")

@@ -1,11 +1,13 @@
 """
 Sprint 2 - Day 13
-Check Financial Ratios Table
+Check Ratio Table
 """
 
 import sqlite3
 
-conn = sqlite3.connect("db/nifty100.db")
+DATABASE = "db/nifty100.db"
+
+conn = sqlite3.connect(DATABASE)
 
 print("=" * 60)
 print("Financial Ratios Count")
@@ -25,8 +27,8 @@ rows = conn.execute("""
 SELECT
 company_id,
 year,
-return_on_equity_pct,
-return_on_capital_employed_pct
+roce,
+roe
 FROM financial_ratios
 LIMIT 10
 """).fetchall()
