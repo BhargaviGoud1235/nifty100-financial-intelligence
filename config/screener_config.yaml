@@ -1,0 +1,21 @@
+quality_compounder:
+  roe_min: 15
+  debt_to_equity_max: 1
+  revenue_cagr_5yr_min: 10
+
+value_pick:
+  pe_max: 20
+  pb_max: 3
+
+growth_accelerator:
+  revenue_cagr_5yr_min: 15
+  pat_cagr_5yr_min: 20
+
+dividend_champion:
+  dividend_yield_min: 2
+
+debt_free_bluechip:
+  debt_to_equity_max: 0
+
+turnaround_watch:
+  revenue_cagr_3yr_min: 10
