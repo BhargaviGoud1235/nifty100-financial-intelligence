@@ -203,49 +203,105 @@ def calculate_composite_quality_score(df):
 
     return result
 
-
 def run_screener(filters):
     """
-    Run screener with supplied filters.
-
-    Returns results sorted by composite quality score.
+    Run screener:
+    1. Load latest financial ratios
+    2. Apply filters
+    3. Calculate composite quality score
+    4. Sort by composite score descending
     """
 
+    # Load latest data
     df = load_financial_ratios()
 
-    result = apply_filters(df, filters)
+    # Apply configured filters
+    filtered = apply_filters(df, filters)
 
-    result = calculate_composite_quality_score(result)
+    # Calculate composite score
+    scored = calculate_composite_quality_score(filtered)
 
-    result = result.sort_values(
-        by="composite_quality_score",
+    # Sort highest quality companies first
+    scored = scored.sort_values(
+        "composite_quality_score",
         ascending=False
-    )
+    ).reset_index(drop=True)
+
+    return scored
+
+
+def run_preset(preset_name):
+    """
+    Run one of the 6 predefined screener presets.
+    """
+
+    config = load_config()
+
+    if preset_name not in config:
+        raise ValueError(
+            f"Unknown preset: {preset_name}"
+        )
+
+    filters = config[preset_name]
+
+    result = run_screener(filters)
 
     return result
 
 
-if __name__ == "__main__":
+def run_all_presets():
+    """
+    Run all 6 screener presets.
+    """
 
     config = load_config()
 
+    results = {}
+
+    for preset_name in config.keys():
+
+        print("\n" + "=" * 60)
+        print(preset_name.upper())
+        print("=" * 60)
+
+        try:
+            result = run_preset(preset_name)
+
+            results[preset_name] = result
+
+            print(
+                f"Companies found: "
+                f"{result['company_id'].nunique()}"
+            )
+
+            if not result.empty:
+
+                print(
+                    result[
+                        [
+                            "company_id",
+                            "year",
+                            "composite_quality_score"
+                        ]
+                    ].head(10)
+                )
+
+        except Exception as error:
+
+            print(
+                f"Error running {preset_name}: "
+                f"{error}"
+            )
+
+    return results
+
+
+if __name__ == "__main__":
+
     print("=" * 60)
-    print("SCREENER FILTER ENGINE")
+    print("SPRINT 3 - DAY 16")
+    print("6 PRESET SCREENERS")
     print("=" * 60)
 
-    filters = config.get("quality_compounder", {})
+    results = run_all_presets()
 
-    result = run_screener(filters)
-
-    print(f"Companies found: {len(result)}")
-
-    if not result.empty:
-        print(
-            result[
-                [
-                    "company_id",
-                    "year",
-                    "composite_quality_score"
-                ]
-            ].head(10)
-        )
