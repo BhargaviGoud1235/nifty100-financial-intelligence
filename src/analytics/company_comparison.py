@@ -69,7 +69,49 @@ def compare_companies(companies):
     )
 
     return df.reset_index(drop=True)
+def generate_comparison_summary(df):
+    """
+    Generate a summary of the best-performing companies
+    across key financial metrics.
+    """
 
+    if df.empty:
+        return {}
+
+    summary = {}
+
+    metrics = {
+        "composite_quality_score": "Highest Quality Score",
+        "revenue_cagr_5yr": "Highest Revenue CAGR",
+        "pat_cagr_5yr": "Highest PAT CAGR",
+        "eps_cagr_5yr": "Highest EPS CAGR",
+        "net_profit_margin_pct": "Highest Net Profit Margin",
+        "operating_profit_margin_pct": "Highest Operating Profit Margin",
+        "interest_coverage": "Highest Interest Coverage",
+    }
+
+    for column, label in metrics.items():
+
+        if column not in df.columns:
+            continue
+
+        valid = df.dropna(
+            subset=[column]
+        )
+
+        if valid.empty:
+            continue
+
+        best_row = valid.loc[
+            valid[column].idxmax()
+        ]
+
+        summary[label] = {
+            "company_id": best_row["company_id"],
+            "value": best_row[column]
+        }
+
+    return summary
 
 if __name__ == "__main__":
 
@@ -99,7 +141,32 @@ if __name__ == "__main__":
 
     print()
     print("=" * 60)
+    print("BEST PERFORMERS")
+    print("=" * 60)
+
+    summary = generate_comparison_summary(
+        comparison
+    )
+
+    for metric, result in summary.items():
+
+        print(
+            f"{metric}: "
+            f"{result['company_id']} "
+            f"({result['value']:.2f})"
+        )
+
+    print()
+    print("=" * 60)
     print("COMPARISON COMPLETE")
     print("=" * 60)
-    print(f"Companies compared: {len(comparison)}")
-    print(f"Output file: {output_file}")
+
+    print(
+        f"Companies compared: "
+        f"{len(comparison)}"
+    )
+
+    print(
+        f"Output file: "
+        f"{output_file}"
+    )
